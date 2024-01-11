@@ -54,7 +54,6 @@ set(header_files
     retroarch/driver.h
     retroarch/retroarch.h
     retroarch/win32_common.h
-    retroarch/gfx_display_vulkan.h
     retroarch/gfx_display.h
     retroarch/dispserv_win32.h
     retroarch/rthreads.h
