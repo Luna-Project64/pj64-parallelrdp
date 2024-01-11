@@ -2,6 +2,7 @@
 #include <shellapi.h>
 #include <commctrl.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "config_gui_resources.h"
 #include "config_gui.h"
@@ -38,6 +39,25 @@ void GetDesktopResolution(int horizontal, int vertical)
 	vertical = desktop.bottom;
 }
 
+static void addOption(HWND hWnd, int w, int h)
+{
+	char s[500];
+	ress[nRes].w = w;
+	ress[nRes].h = h;
+	nRes++;
+	sprintf(s, "%d X %d", w, h);
+	SendDlgItemMessage(hWnd, ComboResolution, CB_ADDSTRING, 0, (LPARAM)s);
+}
+
+static bool hasOption(int w, int h)
+{
+	for (int i = 0; i < nRes; i++)
+		if (ress[i].w == w && ress[i].h == h)
+			return true;
+
+	return false;
+}
+
 BOOL CALLBACK DlgFunc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -49,7 +69,19 @@ BOOL CALLBACK DlgFunc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		SetWindowText(hWnd, (LPCSTR)"paraLLEl-RDP config");
 
-		char s[500];
+		nRes = 0;
+
+		addOption(hWnd, 320, 240);
+		addOption(hWnd, 640, 480);
+		addOption(hWnd, 800, 600);
+		addOption(hWnd, 1024, 768);
+		addOption(hWnd, 1280, 960);
+
+		addOption(hWnd, 1280, 720);
+		addOption(hWnd, 1360, 768);
+		addOption(hWnd, 1600, 900);
+		addOption(hWnd, 1920, 1080);
+
 		int i = 0;
 
 		DEVMODE d;
@@ -62,22 +94,16 @@ BOOL CALLBACK DlgFunc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (d.dmBitsPerPel != 32)
 				continue;
 
-			if (!nRes || ress[nRes - 1].w != d.dmPelsWidth || ress[nRes - 1].h != d.dmPelsHeight)
+			if (!hasOption(d.dmPelsWidth, d.dmPelsHeight))
 			{
-				ress[nRes].w = d.dmPelsWidth;
-				ress[nRes].h = d.dmPelsHeight;
-
-				nRes++;
-				sprintf(s, "%ld X %ld", d.dmPelsWidth, d.dmPelsHeight);
-				SendDlgItemMessage(hWnd, ComboResolution, CB_ADDSTRING, 0, (LPARAM)s);
+				addOption(hWnd, d.dmPelsWidth, d.dmPelsHeight);
 			}
 		}
-
-
 
 		for (i = 0; i < nRes; i++)
 			if (ress[i].w == settings[KEY_SCREEN_WIDTH].val && ress[i].h == settings[KEY_SCREEN_HEIGHT].val)
 				SendDlgItemMessage(hWnd, ComboResolution, CB_SETCURSEL, i, 0);
+
 		currentIndexResolution = SendDlgItemMessage(hWnd, ComboResolution, CB_GETCURSEL, 0, 0);
 
 		if (settings[KEY_FULLSCREEN].val)

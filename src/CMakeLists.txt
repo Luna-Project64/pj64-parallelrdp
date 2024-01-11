@@ -1,6 +1,6 @@
 # Compiler flags mostly copied from parallel-rdp upstream CMakeLists.txt.
 # MSVC: Added /O2, /fp:fast for significant performance increase, /MT for static linking against runtime library.
-set(PJ64_PARALLEL_RDP_CXX_FLAGS /D_CRT_SECURE_NO_WARNINGS /wd4267 /wd4244 /wd4309 /wd4005 /MP /DNOMINMAX)
+set(PJ64_PARALLEL_RDP_CXX_FLAGS /fp:fast /Gv /D_CRT_SECURE_NO_WARNINGS /wd4267 /wd4244 /wd4309 /wd4005 /MP /DNOMINMAX)
 
 # Include CMakeLists.txt for parallel-rdp-standalone source.
 include(${CMAKE_CURRENT_SOURCE_DIR}/parallel-rdp-standalone.cmake)
