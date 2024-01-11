@@ -31,7 +31,6 @@
 #include <stdbool.h>
 
 #include "gfx_1.3.h"
-#include "glguts.h"
 #include "parallel_imp.h"
 #include "ini.h"
 #include "config_gui.h"
@@ -40,9 +39,43 @@
 #include "git.h"
 
 static bool warn_hle = false;
-
 GFX_INFO gfx;
 uint32_t rdram_size;
+
+
+#define MSG_BUFFER_LEN 256
+
+static void msg_error(const char* err, ...)
+{
+    va_list arg;
+    va_start(arg, err);
+    char buf[MSG_BUFFER_LEN];
+    vsprintf_s(buf, sizeof(buf), err, arg);
+    MessageBoxA(0, buf, "paraLLEl: fatal error", MB_OK);
+    va_end(arg);
+    exit(0);
+}
+
+static void msg_warning(const char* err, ...)
+{
+    va_list arg;
+    va_start(arg, err);
+    char buf[MSG_BUFFER_LEN];
+    vsprintf_s(buf, sizeof(buf), err, arg);
+    MessageBox(0, buf, "paraLLEl: warning", MB_OK);
+    va_end(arg);
+}
+
+static void msg_debug(const char* err, ...)
+{
+    va_list arg;
+    va_start(arg, err);
+    char buf[MSG_BUFFER_LEN];
+    vsprintf_s(buf, sizeof(buf), err, arg);
+    strcat_s(buf, sizeof(buf), "\n");
+    OutputDebugStringA(buf);
+    va_end(arg);
+}
 
 static bool is_valid_ptr(void *ptr, uint32_t bytes)
 {
@@ -99,7 +132,7 @@ EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
 
     PluginInfo->Version = 0x0103;
     PluginInfo->Type  = PLUGIN_TYPE_GFX;
-    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "ParaLLEl-RDP rev.%s", hash);
+    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP rev.%s", hash);
 
     PluginInfo->NormalMemory = TRUE;
     PluginInfo->MemoryBswaped = TRUE;
@@ -140,36 +173,42 @@ EXPORT void CALL ProcessDList(void)
 
 EXPORT void CALL ProcessRDPList(void)
 {
-    vk_process_commands();
+    RDP::begin_frame();
+    RDP::process_commands();
 }
+
+extern "C" void win32_set_hwnd(HWND hwnd);
 
 EXPORT void CALL RomOpen(void)
 {
-    window_fullscreen = settings[KEY_FULLSCREEN].val;
-    window_width = settings[KEY_SCREEN_WIDTH].val;
-    window_height = settings[KEY_SCREEN_HEIGHT].val;
-    window_widescreen = settings[KEY_WIDESCREEN].val;
-    window_vsync = settings[KEY_VSYNC].val;
-    window_integerscale = settings[KEY_INTEGER].val;
+#if 0
+    RDP::window_fullscreen = settings[KEY_FULLSCREEN].val;
+    RDP::window_width = settings[KEY_SCREEN_WIDTH].val;
+    RDP::window_height = settings[KEY_SCREEN_HEIGHT].val;
+    RDP::window_widescreen = settings[KEY_WIDESCREEN].val;
+    RDP::window_vsync = settings[KEY_VSYNC].val;
+    RDP::window_integerscale = settings[KEY_INTEGER].val;
+#endif
 
-    vk_rescaling = settings[KEY_UPSCALING].val;
-    vk_ssreadbacks = settings[KEY_SSREADBACKS].val;
-    vk_ssdither = settings[KEY_SSDITHER].val;
+    RDP::upscaling = settings[KEY_UPSCALING].val;
+    RDP::super_sampled_read_back = settings[KEY_SSREADBACKS].val;
+    RDP::super_sampled_dither = settings[KEY_SSDITHER].val;
 
-    vk_interlacing = settings[KEY_DEINTERLACE].val;
-    vk_overscan = settings[KEY_OVERSCANCROP].val;
-    vk_native_texture_lod = settings[KEY_NATIVETEXTLOD].val;
-    vk_native_tex_rect = settings[KEY_NATIVETEXTRECT].val;
-    vk_divot_filter = settings[KEY_DIVOT].val;
-    vk_gamma_dither = settings[KEY_GAMMADITHER].val;
-    vk_dither_filter = settings[KEY_VIDITHER].val;
-    vk_interlacing = settings[KEY_DEINTERLACE].val;
-    vk_vi_aa = settings[KEY_AA].val;
-    vk_vi_scale = settings[KEY_VIBILERP].val;
-    vk_downscaling_steps = settings[KEY_DOWNSCALING].val;
-    vk_synchronous  = settings[KEY_SYNCHRONOUS].val;
+    RDP::interlacing = settings[KEY_DEINTERLACE].val;
+    RDP::overscan = settings[KEY_OVERSCANCROP].val;
+    RDP::native_texture_lod = settings[KEY_NATIVETEXTLOD].val;
+    RDP::native_tex_rect = settings[KEY_NATIVETEXTRECT].val;
+    RDP::divot_filter = settings[KEY_DIVOT].val;
+    RDP::gamma_dither = settings[KEY_GAMMADITHER].val;
+    RDP::dither_filter = settings[KEY_VIDITHER].val;
+    RDP::interlacing = settings[KEY_DEINTERLACE].val;
+    RDP::vi_aa = settings[KEY_AA].val;
+    RDP::vi_scale = settings[KEY_VIBILERP].val;
+    RDP::downscaling_steps = settings[KEY_DOWNSCALING].val;
+    RDP::synchronous  = settings[KEY_SYNCHRONOUS].val;
 
-    vk_init();
+    win32_set_hwnd(gfx.hWnd);
+    retro_init();
 }
 
 
@@ -183,17 +222,20 @@ EXPORT void CALL ReadScreen(void **dest, long *width, long *height)
 
 EXPORT void CALL RomClosed(void)
 {
-    vk_destroy();
+    retro_deinit();
 }
 
 EXPORT void CALL ShowCFB(void)
 {
-    vk_rasterize();
+    RDP::complete_frame();
+    RDP::profile_refresh_begin();
+    retro_video_refresh(RETRO_HW_FRAME_BUFFER_VALID, RDP::width, RDP::height, 0);
+    RDP::profile_refresh_end();
 }
 
 EXPORT void CALL UpdateScreen(void)
 {
-    vk_rasterize();
+    ShowCFB();
 }
 
 EXPORT void CALL ViStatusChanged(void)
@@ -206,7 +248,7 @@ EXPORT void CALL ViWidthChanged(void)
 
 EXPORT void CALL ChangeWindow(void)
 {
-    screen_toggle_fullscreen();
+    // screen_toggle_fullscreen();
 }
 
 EXPORT void CALL FBWrite(DWORD addr, DWORD size)

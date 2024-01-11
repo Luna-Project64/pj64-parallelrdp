@@ -1,30 +1,43 @@
+#ifndef PARALLEL_RDP_HPP
+#define PARALLEL_RDP_HPP
 
-#include "gfx_1.3.h"
-#include "glguts.h"
-#include "gfxstructdefs.h"
+#include "rdp_device.hpp"
+#include "context.hpp"
+#include "device.hpp"
+#include "retroarch/retroarch.h"
+
+namespace RDP
+{
+bool init();
+void deinit();
+void begin_frame();
+
+void process_commands();
+extern const struct retro_hw_render_interface_vulkan *vulkan;
+
+extern unsigned width;
+extern unsigned height;
+extern unsigned upscaling;
+extern unsigned overscan;
+extern unsigned downscaling_steps;
+extern bool synchronous, divot_filter, gamma_dither, vi_aa, vi_scale, dither_filter, interlacing;
+extern bool native_texture_lod, native_tex_rect, super_sampled_read_back, super_sampled_dither;
+
+void complete_frame();
+void deinit();
+
+void profile_refresh_begin();
+void profile_refresh_end();
+}
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    extern int32_t vk_rescaling;
-    extern bool vk_ssreadbacks;
-    extern bool vk_ssdither;
-
-    extern unsigned vk_overscan;
-    extern unsigned vk_downscaling_steps;
-    extern bool vk_native_texture_lod;
-    extern bool vk_native_tex_rect;
-    extern bool vk_synchronous, vk_divot_filter, vk_gamma_dither;
-    extern bool vk_vi_aa, vk_vi_scale, vk_dither_filter;
-    extern bool vk_interlacing;
-
-    void vk_rasterize();
-    void vk_process_commands();
-    bool vk_init();
-    void vk_destroy();
+bool parallel_retro_init_vulkan(void);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

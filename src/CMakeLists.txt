@@ -3,7 +3,7 @@
 if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
     set(PJ64_PARALLEL_RDP_CXX_FLAGS -Wall -Wextra -Wno-missing-field-initializers -Wno-empty-body -ffast-math -Wno-unused-parameter -pthread -fwrapv)
 elseif (MSVC)
-    set(PJ64_PARALLEL_RDP_CXX_FLAGS /O2 /fp:fast /MT /D_CRT_SECURE_NO_WARNINGS /wd4267 /wd4244 /wd4309 /wd4005 /MP /DNOMINMAX)
+    set(PJ64_PARALLEL_RDP_CXX_FLAGS /D_CRT_SECURE_NO_WARNINGS /wd4267 /wd4244 /wd4309 /wd4005 /MP /DNOMINMAX)
 endif()
 
 # Include CMakeLists.txt for parallel-rdp-standalone source.
@@ -13,11 +13,31 @@ set(src_files
     parallel_imp.cpp
     config_gui.c
     config.c
-    gfx_1.3.c
-    gl_core_3_3.c
-    glguts.c
+    gfx_1.3.cpp
     ini.c
-    wgl_ext.c
+    retroarch/vulkan_common.c
+    retroarch/w_vk_ctx.c
+    retroarch/retro_vulkan.c
+    retroarch/video_driver.c
+    retroarch/driver.c
+    retroarch/retroarch.c
+    retroarch/win32_common.c
+    retroarch/gfx_display_vulkan.c
+    retroarch/gfx_display.c
+    retroarch/dispserv_win32.c
+    retroarch/rthreads.c
+    retroarch/scaler.c
+    retroarch/pixconv.c
+    retroarch/scaler_filter.c
+    retroarch/scaler_int.c
+    retroarch/shader_vulkan.cpp
+    retroarch/compat_strl.c
+    retroarch/string_list.c
+    retroarch/slang_reflection.cpp
+    spirv-cross/spirv_cfg.cpp
+    spirv-cross/spirv_cross.cpp
+    spirv-cross/spirv_cross_parsed_ir.cpp
+    spirv-cross/spirv_parser.cpp
 )
 
 set(header_files
@@ -27,11 +47,34 @@ set(header_files
     gfx_1.3.h
     gfx_m64p.h
     gfxstructdefs.h
-    gl_core_3_3.h
-    glguts.h
     ini.h
     parallel_imp.h
-    wgl_ext.h
+    retroarch/vulkan_common.h
+    retroarch/video_driver.h
+    retroarch/driver.h
+    retroarch/retroarch.h
+    retroarch/win32_common.h
+    retroarch/gfx_display_vulkan.h
+    retroarch/gfx_display.h
+    retroarch/dispserv_win32.h
+    retroarch/rthreads.h
+    retroarch/scaler.h
+    retroarch/filter.h
+    retroarch/pixconv.h
+    retroarch/scaler_int.h
+    retroarch/shader_vulkan.h
+    retroarch/compat_strl.h
+    retroarch/string_list.h
+    retroarch/slang_reflection.h
+    spirv-cross/GLSL.std.450.h
+    spirv-cross/spirv.h
+    spirv-cross/spirv_cfg.hpp
+    spirv-cross/spirv_common.hpp
+    spirv-cross/spirv_cross.hpp
+    spirv-cross/spirv_cross_parsed_ir.hpp
+    spirv-cross/spirv_parser.hpp
+    spirv-cross/spirv_cross_containers.hpp
+    spirv-cross/spirv_cross_error_handling.hpp
 )
 
 set(res_files

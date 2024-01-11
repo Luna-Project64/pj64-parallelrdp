@@ -29,10 +29,19 @@ struct settingkey_t
 	int val;
 };
 
-extern struct settingkey_t settings[NUM_CONFIGVARS];
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern void config_init();
-extern void config_save();
-extern void config_load();
+	extern struct settingkey_t settings[NUM_CONFIGVARS];
+
+	extern void config_init();
+	extern void config_save();
+	extern void config_load();
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // CONFIG_H
