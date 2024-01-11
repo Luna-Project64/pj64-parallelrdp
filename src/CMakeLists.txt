@@ -1,10 +1,6 @@
 # Compiler flags mostly copied from parallel-rdp upstream CMakeLists.txt.
 # MSVC: Added /O2, /fp:fast for significant performance increase, /MT for static linking against runtime library.
-if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
-    set(PJ64_PARALLEL_RDP_CXX_FLAGS -Wall -Wextra -Wno-missing-field-initializers -Wno-empty-body -ffast-math -Wno-unused-parameter -pthread -fwrapv)
-elseif (MSVC)
-    set(PJ64_PARALLEL_RDP_CXX_FLAGS /D_CRT_SECURE_NO_WARNINGS /wd4267 /wd4244 /wd4309 /wd4005 /MP /DNOMINMAX)
-endif()
+set(PJ64_PARALLEL_RDP_CXX_FLAGS /D_CRT_SECURE_NO_WARNINGS /wd4267 /wd4244 /wd4309 /wd4005 /MP /DNOMINMAX)
 
 # Include CMakeLists.txt for parallel-rdp-standalone source.
 include(${CMAKE_CURRENT_SOURCE_DIR}/parallel-rdp-standalone.cmake)
@@ -15,6 +11,7 @@ set(src_files
     config.c
     gfx_1.3.cpp
     ini.c
+    queue_executor.cpp
     retroarch/vulkan_common.c
     retroarch/w_vk_ctx.c
     retroarch/retro_vulkan.c
@@ -49,6 +46,7 @@ set(header_files
     gfxstructdefs.h
     ini.h
     parallel_imp.h
+    queue_executor.h
     retroarch/vulkan_common.h
     retroarch/video_driver.h
     retroarch/driver.h

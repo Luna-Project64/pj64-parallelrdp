@@ -300,6 +300,8 @@ void win32_set_style(MONITORINFOEX* current_mon, HMONITOR* hm_to_use,
 #endif
 }
 
+extern HWND hStatusBar;
+
 void win32_set_window(unsigned* width, unsigned* height,
     bool fullscreen, bool windowed_full, void* rect_data)
 {
@@ -318,8 +320,13 @@ void win32_set_window(unsigned* width, unsigned* height,
             rc_temp.bottom = 0x7FFF;
 
             SendMessage(main_window.hwnd, WM_NCCALCSIZE, FALSE, (LPARAM)&rc_temp);
+            RECT statusRect = { 0 };
+            if (hStatusBar)
+                GetWindowRect(hStatusBar, &statusRect);
+
             g_win32_resize_height = *height += rc_temp.top + rect->top;
-            SetWindowPos(main_window.hwnd, NULL, 0, 0, *width, *height, SWP_NOMOVE);
+            int heightOffset = (statusRect.bottom - statusRect.top);
+            SetWindowPos(main_window.hwnd, NULL, 0, 0, *width, *height + heightOffset, SWP_NOMOVE);
         }
 
         ShowWindow(main_window.hwnd, SW_RESTORE);

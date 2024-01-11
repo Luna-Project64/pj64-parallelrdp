@@ -143,7 +143,7 @@ bool video_driver_init_internal(bool* video_is_threaded, bool verbosity_enabled)
     scale = next_pow2(max_dim) / RARCH_SCALE_BASE;
     scale = MAX(scale, 1);
 
-    video_driver_set_aspect_ratio_value(1.f);
+    video_driver_set_aspect_ratio_value(1.3333333333333333333333333f);
 
     if (settings->bools.video_fullscreen)
     {

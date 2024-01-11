@@ -35,13 +35,18 @@
 #include "ini.h"
 #include "config_gui.h"
 #include "config.h"
+#include "queue_executor.h"
 
 #include "git.h"
 
 static bool warn_hle = false;
 GFX_INFO gfx;
 uint32_t rdram_size;
-
+static QueueExecutor sExecutor;
+extern "C"
+{
+    HWND hStatusBar;
+}
 
 #define MSG_BUFFER_LEN 256
 
@@ -144,15 +149,9 @@ EXPORT BOOL CALL InitiateGFX(GFX_INFO Gfx_Info)
     config_init();
 
     gfx = Gfx_Info;
+    hStatusBar = gfx.hStatusBar;
     plugin_init();
     return TRUE;
-}
-
-EXPORT void CALL DllConfig(HWND hParent)
-{
-    config_gui_open(hParent);
-    // reload settings
-    config_load();
 }
 
 EXPORT void CALL CloseDLL(void)
@@ -173,23 +172,19 @@ EXPORT void CALL ProcessDList(void)
 
 EXPORT void CALL ProcessRDPList(void)
 {
-    RDP::begin_frame();
-    RDP::process_commands();
+    sExecutor.sync([]()
+	{
+        RDP::begin_frame();
+        RDP::process_commands();
+    });
 }
 
 extern "C" void win32_set_hwnd(HWND hwnd);
 
-EXPORT void CALL RomOpen(void)
+static bool m_fullscreen = false;
+static int m_width, m_height;
+static void init()
 {
-#if 0
-    RDP::window_fullscreen = settings[KEY_FULLSCREEN].val;
-    RDP::window_width = settings[KEY_SCREEN_WIDTH].val;
-    RDP::window_height = settings[KEY_SCREEN_HEIGHT].val;
-    RDP::window_widescreen = settings[KEY_WIDESCREEN].val;
-    RDP::window_vsync = settings[KEY_VSYNC].val;
-    RDP::window_integerscale = settings[KEY_INTEGER].val;
-#endif
-
     RDP::upscaling = settings[KEY_UPSCALING].val;
     RDP::super_sampled_read_back = settings[KEY_SSREADBACKS].val;
     RDP::super_sampled_dither = settings[KEY_SSDITHER].val;
@@ -205,12 +200,36 @@ EXPORT void CALL RomOpen(void)
     RDP::vi_aa = settings[KEY_AA].val;
     RDP::vi_scale = settings[KEY_VIBILERP].val;
     RDP::downscaling_steps = settings[KEY_DOWNSCALING].val;
-    RDP::synchronous  = settings[KEY_SYNCHRONOUS].val;
+    RDP::synchronous = settings[KEY_SYNCHRONOUS].val;
+
+    if (!m_fullscreen)
+    {
+        m_width = settings[KEY_SCREEN_WIDTH].val;
+		m_height = settings[KEY_SCREEN_HEIGHT].val;
+	}
 
     win32_set_hwnd(gfx.hWnd);
-    retro_init();
+    retro_init(m_fullscreen, m_width, m_height);
 }
 
+EXPORT void CALL DllConfig(HWND hParent)
+{
+    config_gui_open(hParent);
+    sExecutor.async([]()
+        {
+            // reload settings
+            config_load();
+            retro_deinit();
+            init();
+        });
+}
+
+EXPORT void CALL RomOpen(void)
+{
+    // Vulkan does not seem to be particularly happy about multithreading either although it might work
+    sExecutor.start(false /*same thread exec*/);
+    sExecutor.sync(init);
+}
 
 EXPORT void CALL DrawScreen(void)
 {
@@ -222,15 +241,18 @@ EXPORT void CALL ReadScreen(void **dest, long *width, long *height)
 
 EXPORT void CALL RomClosed(void)
 {
-    retro_deinit();
+    sExecutor.async(retro_deinit);
+    sExecutor.stop();
 }
 
 EXPORT void CALL ShowCFB(void)
 {
-    RDP::complete_frame();
-    RDP::profile_refresh_begin();
-    retro_video_refresh(RETRO_HW_FRAME_BUFFER_VALID, RDP::width, RDP::height, 0);
-    RDP::profile_refresh_end();
+    sExecutor.async([]() {
+        RDP::complete_frame();
+        RDP::profile_refresh_begin();
+        retro_video_refresh(RETRO_HW_FRAME_BUFFER_VALID, RDP::width, RDP::height, 0);
+        RDP::profile_refresh_end();
+    });
 }
 
 EXPORT void CALL UpdateScreen(void)
@@ -246,9 +268,73 @@ EXPORT void CALL ViWidthChanged(void)
 {
 }
 
+static void screen_toggle_fullscreen()
+{
+    static HMENU old_menu;
+    static LONG old_style;
+    static WINDOWPLACEMENT old_pos;
+
+    m_fullscreen = !m_fullscreen;
+
+    if (m_fullscreen) {
+        // hide curser
+        ShowCursor(FALSE);
+
+        // hide status bar
+        if (hStatusBar) {
+            ShowWindow(hStatusBar, SW_HIDE);
+        }
+
+        // disable menu and save it to restore it later
+        old_menu = GetMenu(gfx.hWnd);
+        if (old_menu) {
+            SetMenu(gfx.hWnd, NULL);
+        }
+
+        // save old window position and size
+        GetWindowPlacement(gfx.hWnd, &old_pos);
+
+        // use virtual screen dimensions for fullscreen mode
+        m_width = GetSystemMetrics(SM_CXSCREEN);
+        m_height = GetSystemMetrics(SM_CYSCREEN);
+
+        // disable all styles to get a borderless window and save it to restore
+        // it later
+        old_style = GetWindowLong(gfx.hWnd, GWL_STYLE);
+        LONG style = WS_VISIBLE;
+        SetWindowLong(gfx.hWnd, GWL_STYLE, style);
+
+        // resize window so it covers the entire virtual screen
+        SetWindowPos(gfx.hWnd, HWND_TOP, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+    }
+    else {
+        // restore cursor
+        ShowCursor(TRUE);
+
+        // restore status bar
+        if (hStatusBar) {
+            ShowWindow(hStatusBar, SW_SHOW);
+        }
+
+        // restore menu
+        if (old_menu) {
+            SetMenu(gfx.hWnd, old_menu);
+            old_menu = NULL;
+        }
+
+        // restore style
+        SetWindowLong(gfx.hWnd, GWL_STYLE, old_style);
+
+        // restore window size and position
+        SetWindowPlacement(gfx.hWnd, &old_pos);
+    }
+    retro_deinit();
+    init();
+}
+
 EXPORT void CALL ChangeWindow(void)
 {
-    // screen_toggle_fullscreen();
+    sExecutor.async(screen_toggle_fullscreen);
 }
 
 EXPORT void CALL FBWrite(DWORD addr, DWORD size)

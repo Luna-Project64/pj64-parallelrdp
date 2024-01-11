@@ -85,13 +85,17 @@ static bool core_deinit()
     driver_uninit(DRIVERS_CMD_ALL);
 }
 
-bool retro_init()
+bool retro_init(bool fs, unsigned width, unsigned height)
 {
 	log_cb = log;
     settings_t* rsettings = config_get_ptr();
 
-    rsettings->uints.window_position_height = settings[KEY_SCREEN_HEIGHT].val;
-    rsettings->uints.window_position_width = settings[KEY_SCREEN_WIDTH].val;
+    rsettings->bools.video_force_aspect = settings[KEY_INTEGER].val;
+    rsettings->uints.window_position_height = height;
+    rsettings->uints.window_position_width = width;
+    rsettings->bools.video_fullscreen = fs;
+    rsettings->bools.video_vsync = settings[KEY_VSYNC].val;
+    // RDP::window_integerscale = settings[KEY_INTEGER].val;
 
 #if defined(DEBUG) && defined(HAVE_DRMINGW)
     char log_file_name[128];
