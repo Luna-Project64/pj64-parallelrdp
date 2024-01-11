@@ -133,7 +133,7 @@ void retro_deinit(void)
 
 void retro_reinit()
 {
-    video_driver_reinit(0);
+    video_driver_reinit();
 }
 
 static settings_t config_st = { 0 };

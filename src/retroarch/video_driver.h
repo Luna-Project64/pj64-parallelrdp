@@ -659,7 +659,7 @@ void video_driver_lock_new(void);
 
 bool video_driver_init_internal(bool* video_is_threaded, bool verbosity_enabled);
 
-void video_driver_reinit();
+void video_driver_reinit(void);
 
 void video_driver_free_internal(void);
 

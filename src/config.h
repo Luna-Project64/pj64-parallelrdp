@@ -35,9 +35,9 @@ extern "C" {
 
 	extern struct settingkey_t settings[NUM_CONFIGVARS];
 
-	extern void config_init();
-	extern void config_save();
-	extern void config_load();
+	extern void config_init(void);
+	extern void config_save(void);
+	extern void config_load(void);
 
 #ifdef __cplusplus
 }

@@ -6,7 +6,7 @@
 
 extern char ini_file[MAX_PATH];
 
-extern void ini_init();
+extern void ini_init(void);
 extern bool ini_set_value(const char* key, int value);
 extern bool ini_get_value(const char* key, int* value);
 

@@ -231,7 +231,7 @@ extern "C" {
     
     void retro_sleep(int);
 
-    void* retro_get_hw_render_interface();
+    void* retro_get_hw_render_interface(void);
     bool retro_set_hw_render(void*);
     bool retro_set_hw_render_context_negotiation_interface(void*);
 
