@@ -1,42 +1,26 @@
 #include "ini.h"
+#include <fcntl.h>
+#include <Shlobj.h>
+#include <shlwapi.h>
 #include <windows.h>
 #include <stdbool.h>
 
-EXTERN_C IMAGE_DOS_HEADER __ImageBase;
-
 char ini_file[MAX_PATH];
-
-// extracts directory from full file path
-static void file_to_dir(char* file_path, char* directory, size_t size)
-{
-	char dir_buf[MAX_PATH] = { 0 };
-
-	char* str = strtok(file_path, "\\");
-	char* str2 = NULL;
-	while (str != NULL)
-	{
-		str2 = strtok(NULL, "\\");
-		if (str2 == NULL)
-		{ // no more '\' found
-			break;
-		}
-
-		strcat(dir_buf, str);
-		strcat(dir_buf, "\\");
-
-		str = str2;
-	}
-
-	strncpy(directory, dir_buf, size);
-}
 
 void ini_init()
 {
-	char buf[MAX_PATH] = { 0 };
-	GetModuleFileNameA((HINSTANCE)&__ImageBase, buf, MAX_PATH);
+	if ('\0' != *ini_file)
+		return;
 
-	file_to_dir(buf, ini_file, MAX_PATH);
-	strcat(ini_file, "\\pj64-parallelrdp.ini");
+	SHGetFolderPath(NULL,
+		CSIDL_APPDATA,
+		NULL,
+		0,
+		ini_file);
+
+	PathAppend(ini_file, "LParallel");
+	CreateDirectory(ini_file, NULL); // can fail, ignore errors
+	PathAppend(ini_file, "cfg.ini");
 }
 
 bool ini_set_value(const char* key, int value)
