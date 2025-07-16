@@ -227,7 +227,7 @@ EXPORT void CALL DllConfig(HWND hParent)
 EXPORT void CALL RomOpen(void)
 {
     // Vulkan does not seem to be particularly happy about multithreading either although it might work
-    sExecutor.start(false /*same thread exec*/);
+    sExecutor.start(true /*same thread exec*/);
     sExecutor.sync(init);
 }
 
