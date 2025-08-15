@@ -7,6 +7,8 @@
 
 char ini_file[MAX_PATH];
 
+#pragma comment(lib, "Shlwapi.lib")
+
 void ini_init()
 {
 	if ('\0' != *ini_file)

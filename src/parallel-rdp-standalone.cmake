@@ -18,6 +18,7 @@ set(PARALLEL_RDP_SRC_FILES
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/fence.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/fence_manager.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/image.cpp
+    ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/indirect_layout.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/memory_allocator.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/pipeline_event.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/query_pool.cpp
@@ -26,11 +27,12 @@ set(PARALLEL_RDP_SRC_FILES
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/semaphore.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/semaphore_manager.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/shader.cpp
-    ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/texture_format.cpp
+    ${PARALLEL_RDP_STANDALONE_DIR}/vulkan/texture/texture_format.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/logging.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/thread_id.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/aligned_alloc.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/arena_allocator.cpp
+    ${PARALLEL_RDP_STANDALONE_DIR}/util/environment.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/timer.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/timeline_trace_file.cpp
     ${PARALLEL_RDP_STANDALONE_DIR}/util/thread_name.cpp
