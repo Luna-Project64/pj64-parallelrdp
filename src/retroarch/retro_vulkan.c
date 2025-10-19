@@ -1482,7 +1482,7 @@ static void vulkan_set_viewport(void* data, unsigned viewport_width,
     float device_aspect = (float)viewport_width / viewport_height;
     struct video_ortho ortho = { 0, 1, 0, 1, -1, 1 };
     settings_t* settings = config_get_ptr();
-    bool video_scale_integer = false; // settings->bools.video_scale_integer;
+    bool video_scale_integer = settings->bools.video_scale_integer;
     vk_t* vk = (vk_t*)data;
     unsigned width = vk->video_width;
     unsigned height = vk->video_height;
@@ -1491,7 +1491,6 @@ static void vulkan_set_viewport(void* data, unsigned viewport_width,
         device_aspect = vk->ctx_driver->translate_aspect(
             vk->ctx_data, viewport_width, viewport_height);
 
-#if 0
     if (video_scale_integer && !force_full)
     {
         video_viewport_get_scaled_integer(&vk->vp,
@@ -1500,9 +1499,7 @@ static void vulkan_set_viewport(void* data, unsigned viewport_width,
         viewport_width = vk->vp.width;
         viewport_height = vk->vp.height;
     }
-    else
-#endif
-    if (vk->keep_aspect && !force_full)
+    else if (vk->keep_aspect && !force_full)
     {
         float desired_aspect = video_driver_get_aspect_ratio();
 

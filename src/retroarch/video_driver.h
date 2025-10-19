@@ -712,5 +712,9 @@ retro_proc_address_t video_driver_get_proc_address(const char* sym);
 void video_driver_frame(const void* data, unsigned width,
     unsigned height, size_t pitch);
 
+void video_viewport_get_scaled_integer(struct video_viewport* vp,
+    unsigned width, unsigned height,
+    float aspect_ratio, bool keep_aspect);
+
 extern video_driver_t video_vulkan;
 extern const gfx_ctx_driver_t gfx_ctx_w_vk;

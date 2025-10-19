@@ -95,7 +95,7 @@ bool retro_init(bool fs, unsigned width, unsigned height)
     rsettings->uints.window_position_width = width;
     rsettings->bools.video_fullscreen = fs;
     rsettings->bools.video_vsync = settings[KEY_VSYNC].val;
-    // RDP::window_integerscale = settings[KEY_INTEGER].val;
+    rsettings->bools.video_scale_integer = settings[KEY_INTEGER].val;
 
 #if defined(DEBUG) && defined(HAVE_DRMINGW)
     char log_file_name[128];
@@ -104,6 +104,8 @@ bool retro_init(bool fs, unsigned width, unsigned height)
     bool           init_failed = false;
     video_driver_state_t* video_st = video_state_get_ptr();
     video_st->active = true;
+    video_st->av_info.geometry.base_height = height;
+    video_st->av_info.geometry.base_width = width;
 
     if (!video_driver_find_driver(rsettings,
         "video driver", verbosity_enabled))

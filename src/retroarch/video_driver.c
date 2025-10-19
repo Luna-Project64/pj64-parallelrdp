@@ -21,6 +21,7 @@
 
 #include "driver.h"
 
+#include <math.h>
 #include <string.h>
 
 static video_driver_state_t video_driver_st = { 0 };
@@ -585,4 +586,92 @@ void video_driver_frame(const void* data, unsigned width,
             video_driver_msg);
 
     video_st->frame_count++;
+}
+
+void video_viewport_get_scaled_integer(struct video_viewport* vp,
+    unsigned width, unsigned height,
+    float aspect_ratio, bool keep_aspect)
+{
+    int padding_x = 0;
+    int padding_y = 0;
+    settings_t* settings = config_get_ptr();
+    video_driver_state_t* video_st = &video_driver_st;
+#if 0
+    unsigned video_aspect_ratio_idx = settings->uints.video_aspect_ratio_idx;
+    bool overscale = settings->bools.video_scale_integer_overscale;
+#else
+	bool overscale = false;
+#endif
+
+#if 0
+    if (video_aspect_ratio_idx == ASPECT_RATIO_CUSTOM)
+    {
+        struct video_viewport* custom = &settings->video_viewport_custom;
+
+        if (custom)
+        {
+            padding_x = width - custom->width;
+            padding_y = height - custom->height;
+            width = custom->width;
+            height = custom->height;
+        }
+    }
+    else
+#endif
+    {
+        unsigned base_width;
+        /* Use system reported sizes as these define the
+         * geometry for the "normal" case. */
+        unsigned base_height =
+            video_st->av_info.geometry.base_height;
+        unsigned int rotation = 0; // retroarch_get_rotation();
+
+        if (rotation % 2)
+            base_height = video_st->av_info.geometry.base_width;
+
+        if (base_height == 0)
+            base_height = 1;
+
+        /* Account for non-square pixels.
+         * This is sort of contradictory with the goal of integer scale,
+         * but it is desirable in some cases.
+         *
+         * If square pixels are used, base_height will be equal to
+         * system->av_info.base_height. */
+        base_width = (unsigned)roundf(base_height * aspect_ratio);
+
+        /* Make sure that we don't get 0x scale ... */
+        if (width >= base_width && height >= base_height)
+        {
+            if (keep_aspect)
+            {
+                /* X/Y scale must be same. */
+                unsigned max_scale = 1;
+
+                if (overscale)
+                    max_scale = MIN((width / base_width) + !!(width % base_width),
+                        (height / base_height) + !!(height % base_height));
+                else
+                    max_scale = MIN(width / base_width,
+                        height / base_height);
+
+                padding_x = width - base_width * max_scale;
+                padding_y = height - base_height * max_scale;
+            }
+            else
+            {
+                /* X/Y can be independent, each scaled as much as possible. */
+                padding_x = width % base_width;
+                padding_y = height % base_height;
+            }
+        }
+
+        width -= padding_x;
+        height -= padding_y;
+    }
+
+    vp->width = width;
+    vp->height = height;
+    vp->x = padding_x / 2;
+    vp->y = padding_y / 2;
 }

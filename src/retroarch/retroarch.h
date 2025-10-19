@@ -185,6 +185,7 @@ typedef struct
         bool video_adaptive_vsync;
         bool video_smooth;
         bool video_ctx_scaling;
+        bool video_scale_integer;
     } bools;
 
     struct
