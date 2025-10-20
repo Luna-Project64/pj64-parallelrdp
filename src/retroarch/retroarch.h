@@ -222,7 +222,7 @@ inline bool string_is_equal(const char* a, const char* b)
 extern "C" {
 #endif
     void retro_video_refresh(const void* data, unsigned width, unsigned height, size_t pitch);
-    bool retro_init(bool fs, unsigned width, unsigned height);
+    bool retro_init(bool fs, unsigned width, unsigned height, unsigned av_width, unsigned av_height);
     void retro_deinit(void);
     void retro_reinit(void);
 

@@ -209,7 +209,7 @@ static void init()
 	}
 
     win32_set_hwnd(gfx.hWnd);
-    retro_init(m_fullscreen, m_width, m_height);
+    retro_init(m_fullscreen, m_width, m_height, 320 * RDP::upscaling, 240 * RDP::upscaling);
 }
 
 EXPORT void CALL DllConfig(HWND hParent)

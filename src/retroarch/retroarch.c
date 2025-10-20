@@ -85,7 +85,7 @@ static bool core_deinit()
     driver_uninit(DRIVERS_CMD_ALL);
 }
 
-bool retro_init(bool fs, unsigned width, unsigned height)
+bool retro_init(bool fs, unsigned width, unsigned height, unsigned av_width, unsigned av_height)
 {
 	log_cb = log;
     settings_t* rsettings = config_get_ptr();
@@ -104,8 +104,8 @@ bool retro_init(bool fs, unsigned width, unsigned height)
     bool           init_failed = false;
     video_driver_state_t* video_st = video_state_get_ptr();
     video_st->active = true;
-    video_st->av_info.geometry.base_height = height;
-    video_st->av_info.geometry.base_width = width;
+    video_st->av_info.geometry.base_height = av_height;
+    video_st->av_info.geometry.base_width = av_width;
 
     if (!video_driver_find_driver(rsettings,
         "video driver", verbosity_enabled))
