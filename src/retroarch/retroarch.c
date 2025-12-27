@@ -138,7 +138,12 @@ void retro_reinit()
     video_driver_reinit();
 }
 
-static settings_t config_st = { 0 };
+static settings_t config_st = { 
+    .uints = {
+        .video_swap_interval = 1,
+        .video_max_swapchain_images = 3,
+    },
+};
 
 settings_t* config_get_ptr(void)
 {
