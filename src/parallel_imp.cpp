@@ -334,7 +334,7 @@ static void complete_frame_error()
 	device->flush_frame();
 }
 
-void complete_frame()
+void complete_frame(const VIRegsSample& regs)
 {
 	if (!frontend)
 	{
@@ -345,20 +345,20 @@ void complete_frame()
 
 	timeline_value = frontend->signal_timeline();
 
-	frontend->set_vi_register(VIRegister::Control, *GET_GFX_INFO(VI_STATUS_REG));
-	frontend->set_vi_register(VIRegister::Origin, *GET_GFX_INFO(VI_ORIGIN_REG));
-	frontend->set_vi_register(VIRegister::Width, *GET_GFX_INFO(VI_WIDTH_REG));
-	frontend->set_vi_register(VIRegister::Intr, *GET_GFX_INFO(VI_INTR_REG));
-	frontend->set_vi_register(VIRegister::VCurrentLine, *GET_GFX_INFO(VI_V_CURRENT_LINE_REG));
-	frontend->set_vi_register(VIRegister::Timing, *GET_GFX_INFO(VI_V_BURST_REG));
-	frontend->set_vi_register(VIRegister::VSync, *GET_GFX_INFO(VI_V_SYNC_REG));
-	frontend->set_vi_register(VIRegister::HSync, *GET_GFX_INFO(VI_H_SYNC_REG));
-	frontend->set_vi_register(VIRegister::Leap, *GET_GFX_INFO(VI_LEAP_REG));
-	frontend->set_vi_register(VIRegister::HStart, *GET_GFX_INFO(VI_H_START_REG));
-	frontend->set_vi_register(VIRegister::VStart, *GET_GFX_INFO(VI_V_START_REG));
-	frontend->set_vi_register(VIRegister::VBurst, *GET_GFX_INFO(VI_V_BURST_REG));
-	frontend->set_vi_register(VIRegister::XScale, *GET_GFX_INFO(VI_X_SCALE_REG));
-	frontend->set_vi_register(VIRegister::YScale, *GET_GFX_INFO(VI_Y_SCALE_REG));
+	frontend->set_vi_register(VIRegister::Control, regs.VI_STATUS);
+	frontend->set_vi_register(VIRegister::Origin, regs.VI_ORIGIN);
+	frontend->set_vi_register(VIRegister::Width, regs.VI_WIDTH);
+	frontend->set_vi_register(VIRegister::Intr, regs.VI_INTR);
+	frontend->set_vi_register(VIRegister::VCurrentLine, regs.VI_V_CURRENT_LINE);
+	frontend->set_vi_register(VIRegister::Timing, regs.VI_TIMING);
+	frontend->set_vi_register(VIRegister::VSync, regs.VI_V_SYNC);
+	frontend->set_vi_register(VIRegister::HSync, regs.VI_H_SYNC);
+	frontend->set_vi_register(VIRegister::Leap, regs.VI_LEAP);
+	frontend->set_vi_register(VIRegister::HStart, regs.VI_H_START);
+	frontend->set_vi_register(VIRegister::VStart, regs.VI_V_START);
+	frontend->set_vi_register(VIRegister::VBurst, regs.VI_V_BURST);
+	frontend->set_vi_register(VIRegister::XScale, regs.VI_X_SCALE);
+	frontend->set_vi_register(VIRegister::YScale, regs.VI_Y_SCALE);
 
 	ScanoutOptions opts;
 	opts.persist_frame_on_invalid_input = true;

@@ -137,7 +137,7 @@ EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
 
     PluginInfo->Version = 0x0103;
     PluginInfo->Type  = PLUGIN_TYPE_GFX;
-    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.1", hash);
+    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.2", hash);
 
     PluginInfo->NormalMemory = TRUE;
     PluginInfo->MemoryBswaped = TRUE;
@@ -247,8 +247,26 @@ EXPORT void CALL RomClosed(void)
 
 EXPORT void CALL ShowCFB(void)
 {
-    sExecutor.async([]() {
-        RDP::complete_frame();
+    RDP::VIRegsSample regs
+    {
+        .VI_STATUS = *gfx.VI_STATUS_REG,
+        .VI_ORIGIN = *gfx.VI_ORIGIN_REG,
+        .VI_WIDTH = *gfx.VI_WIDTH_REG,
+        .VI_INTR = *gfx.VI_INTR_REG,
+        .VI_V_CURRENT_LINE = *gfx.VI_V_CURRENT_LINE_REG,
+        .VI_TIMING = *gfx.VI_TIMING_REG,
+        .VI_V_SYNC = *gfx.VI_V_SYNC_REG,
+        .VI_H_SYNC = *gfx.VI_H_SYNC_REG,
+        .VI_LEAP = *gfx.VI_LEAP_REG,
+        .VI_H_START = *gfx.VI_H_START_REG,
+        .VI_V_START = *gfx.VI_V_START_REG,
+        .VI_V_BURST = *gfx.VI_V_BURST_REG,
+        .VI_X_SCALE = *gfx.VI_X_SCALE_REG,
+        .VI_Y_SCALE = *gfx.VI_Y_SCALE_REG,
+    };
+
+    sExecutor.async([regs]() {
+        RDP::complete_frame(regs);
         RDP::profile_refresh_begin();
         retro_video_refresh(RETRO_HW_FRAME_BUFFER_VALID, RDP::width, RDP::height, 0);
         RDP::profile_refresh_end();
