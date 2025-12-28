@@ -189,7 +189,6 @@ static void init()
     RDP::super_sampled_read_back = settings[KEY_SSREADBACKS].val;
     RDP::super_sampled_dither = settings[KEY_SSDITHER].val;
 
-    RDP::interlacing = settings[KEY_DEINTERLACE].val;
     RDP::overscan = settings[KEY_OVERSCANCROP].val;
     RDP::native_texture_lod = settings[KEY_NATIVETEXTLOD].val;
     RDP::native_tex_rect = settings[KEY_NATIVETEXTRECT].val;
