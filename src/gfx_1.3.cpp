@@ -39,6 +39,9 @@
 
 #include "git.h"
 
+#include <optional>
+#include <string>
+
 static bool warn_hle = false;
 GFX_INFO gfx;
 uint32_t rdram_size;
@@ -137,7 +140,7 @@ EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
 
     PluginInfo->Version = 0x0103;
     PluginInfo->Type  = PLUGIN_TYPE_GFX;
-    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.2", hash);
+    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.2.2", hash);
 
     PluginInfo->NormalMemory = TRUE;
     PluginInfo->MemoryBswaped = TRUE;
@@ -223,9 +226,10 @@ EXPORT void CALL DllConfig(HWND hParent)
         });
 }
 
+static void tryDisableHLEGraphics();
 EXPORT void CALL RomOpen(void)
 {
-    // Vulkan does not seem to be particularly happy about multithreading either although it might work
+	tryDisableHLEGraphics();
     sExecutor.start(true /*same thread exec*/);
     sExecutor.sync(init);
 }
@@ -371,4 +375,103 @@ EXPORT BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID l
     // set hInstance for the config GUI
     config_gui_hInstance = hModule;
     return TRUE;
+}
+
+extern "C" char gPluginConfigDir[MAX_PATH]{};
+namespace Zilmar
+{
+    short Set_GraphicsHle = 0;
+    short Set_PluginConfigDir = 0;
+    enum SettingLocation
+    {
+        SettingType_ConstString = 0,
+        SettingType_ConstValue = 1,
+        SettingType_CfgFile = 2,
+        SettingType_Registry = 3,
+        SettingType_RelativePath = 4,
+        TemporarySetting = 5,
+        SettingType_RomDatabase = 6,
+        SettingType_CheatSetting = 7,
+        SettingType_GameSetting = 8,
+        SettingType_BoolVariable = 9,
+        SettingType_NumberVariable = 10,
+        SettingType_StringVariable = 11,
+        SettingType_SelectedDirectory = 12,
+        SettingType_RdbSetting = 13,
+    };
+
+    enum SettingDataType
+    {
+        Data_DWORD = 0, Data_String = 1, Data_CPUTYPE = 2, Data_SelfMod = 3, Data_OnOff = 4, Data_YesNo = 5, Data_SaveChip = 6
+    };
+
+    typedef struct
+    {
+        uint32_t dwSize;
+        int DefaultStartRange;
+        int SettingStartRange;
+        int MaximumSettings;
+        int NoDefault;
+        int DefaultLocation;
+        void* handle;
+
+        unsigned int(CALL* GetSetting)      (void* handle, int ID);
+        const char* (CALL* GetSettingSz)    (void* handle, int ID, char* Buffer, int BufferLen);
+        void(CALL* SetSetting)      (void* handle, int ID, unsigned int Value);
+        void(CALL* SetSettingSz)    (void* handle, int ID, const char* Value);
+        void(CALL* RegisterSetting) (void* handle, int ID, int DefaultID, SettingDataType Type,
+            SettingLocation Location, const char* Category, const char* DefaultStr, uint32_t Value);
+        void(CALL* UseUnregisteredSetting) (int ID);
+    } PLUGIN_SETTINGS;
+
+    typedef struct
+    {
+        unsigned int(CALL* FindSystemSettingId) (void* handle, const char* Name);
+    } PLUGIN_SETTINGS2;
+
+    static PLUGIN_SETTINGS  g_PluginSettings;
+    static PLUGIN_SETTINGS2 g_PluginSettings2;
+    static inline unsigned int GetSystemSetting(short SettingID)
+    {
+        return g_PluginSettings.GetSetting(g_PluginSettings.handle, SettingID);
+    }
+
+    static inline short FindSystemSettingId(const char* Name)
+    {
+        if (g_PluginSettings2.FindSystemSettingId && g_PluginSettings.handle)
+        {
+            return (short)g_PluginSettings2.FindSystemSettingId(g_PluginSettings.handle, Name);
+        }
+        return 0;
+    }
+}
+
+extern "C" EXPORT void CALL SetSettingInfo(Zilmar::PLUGIN_SETTINGS* info)
+{
+    Zilmar::g_PluginSettings = *info;
+}
+
+extern "C" EXPORT void CALL SetSettingInfo2(Zilmar::PLUGIN_SETTINGS2* info)
+{
+    Zilmar::g_PluginSettings2 = *info;
+}
+
+extern "C" EXPORT void CALL PluginLoaded(void)
+{
+    Zilmar::Set_GraphicsHle = Zilmar::FindSystemSettingId("HLE GFX");
+	int pluginConfigDir = Zilmar::FindSystemSettingId("Config Base Dir");
+    if (pluginConfigDir)
+    {
+        const char* cfg = Zilmar::g_PluginSettings.GetSettingSz(Zilmar::g_PluginSettings.handle, pluginConfigDir, gPluginConfigDir, sizeof(gPluginConfigDir));
+        if (!cfg)
+    		*gPluginConfigDir = '\0';
+    }
+}
+
+static void tryDisableHLEGraphics()
+{
+    if (Zilmar::Set_GraphicsHle)
+    {
+        Zilmar::g_PluginSettings.SetSetting(Zilmar::g_PluginSettings.handle, Zilmar::Set_GraphicsHle, 0);
+    }
 }

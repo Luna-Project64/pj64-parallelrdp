@@ -5,7 +5,8 @@
 #include <windows.h>
 #include <stdbool.h>
 
-char ini_file[MAX_PATH];
+extern char gPluginConfigDir[MAX_PATH];
+char ini_file[MAX_PATH] = { 0 };
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -14,11 +15,18 @@ void ini_init()
 	if ('\0' != *ini_file)
 		return;
 
-	SHGetFolderPath(NULL,
-		CSIDL_APPDATA,
-		NULL,
-		0,
-		ini_file);
+	if (*gPluginConfigDir)
+	{
+		strncpy_s(ini_file, sizeof(ini_file), gPluginConfigDir, MAX_PATH);
+	}
+	else
+	{
+		SHGetFolderPath(NULL,
+			CSIDL_APPDATA,
+			NULL,
+			0,
+			ini_file);
+	}
 
 	PathAppend(ini_file, "LParallel");
 	CreateDirectory(ini_file, NULL); // can fail, ignore errors
