@@ -42,6 +42,7 @@
 #include <optional>
 #include <string>
 
+static bool m_romopened = false;
 static bool warn_hle = false;
 GFX_INFO gfx;
 uint32_t rdram_size;
@@ -182,11 +183,11 @@ EXPORT void CALL ProcessRDPList(void)
     });
 }
 
-extern "C" void win32_set_hwnd(HWND hwnd);
+extern "C" void win32_set_hwnd(HWND mainHwnd, HWND renderHwnd);
 
 static bool m_fullscreen = false;
 static int m_width, m_height;
-static void init()
+static void xconfig_init()
 {
     RDP::upscaling = settings[KEY_UPSCALING].val;
     RDP::super_sampled_read_back = settings[KEY_SSREADBACKS].val;
@@ -209,8 +210,11 @@ static void init()
         m_width = settings[KEY_SCREEN_WIDTH].val;
 		m_height = settings[KEY_SCREEN_HEIGHT].val;
 	}
+}
 
-    win32_set_hwnd(gfx.hWnd);
+static void rom_open_init()
+{
+    win32_set_hwnd(gfx.hWnd, gfx.hWnd);
     retro_init(m_fullscreen, m_width, m_height, 320 * RDP::upscaling, 240 * RDP::upscaling);
 }
 
@@ -219,19 +223,30 @@ EXPORT void CALL DllConfig(HWND hParent)
     config_gui_open(hParent);
     sExecutor.async([]()
         {
-            // reload settings
-            config_load();
-            retro_deinit();
-            init();
+            if (m_romopened)
+            {
+                config_load();
+                xconfig_init();
+            }
+            else
+            {
+                retro_deinit();
+                config_load();
+                xconfig_init();
+                rom_open_init();
+            }
         });
 }
 
 static void tryDisableHLEGraphics();
 EXPORT void CALL RomOpen(void)
 {
-	tryDisableHLEGraphics();
+	// tryDisableHLEGraphics();
     sExecutor.start(true /*same thread exec*/);
-    sExecutor.sync(init);
+    sExecutor.sync([]() {
+        xconfig_init();
+        rom_open_init();
+    });
 }
 
 EXPORT void CALL DrawScreen(void)
@@ -350,7 +365,8 @@ static void screen_toggle_fullscreen()
         SetWindowPlacement(gfx.hWnd, &old_pos);
     }
     retro_deinit();
-    init();
+    xconfig_init();
+    rom_open_init();
 }
 
 EXPORT void CALL ChangeWindow(void)
@@ -458,7 +474,7 @@ extern "C" EXPORT void CALL SetSettingInfo2(Zilmar::PLUGIN_SETTINGS2* info)
 
 extern "C" EXPORT void CALL PluginLoaded(void)
 {
-    Zilmar::Set_GraphicsHle = Zilmar::FindSystemSettingId("HLE GFX");
+    Zilmar::Set_GraphicsHle = Zilmar::FindSystemSettingId("HLE GFX Plugin");
 	int pluginConfigDir = Zilmar::FindSystemSettingId("Config Base Dir");
     if (pluginConfigDir)
     {
@@ -466,6 +482,13 @@ extern "C" EXPORT void CALL PluginLoaded(void)
         if (!cfg)
     		*gPluginConfigDir = '\0';
     }
+}
+
+extern "C" void win32_set_render_window_api(void*);
+
+extern "C" EXPORT void CALL LunaRegisterRenderWindowApi(void* data)
+{
+    win32_set_render_window_api(data);
 }
 
 static void tryDisableHLEGraphics()

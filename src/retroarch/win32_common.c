@@ -19,8 +19,17 @@
 
 typedef struct ui_window_win32
 {
-    HWND hwnd;
+    HWND mainHwnd;
+    HWND renderHwnd;
+	HWND toolbarHwnd;
 } ui_window_win32_t;
+
+struct LunaRenderApi
+{
+    HWND(*CreateRenderWindow)(HWND);
+    void (*DestroyRenderWindow)(HWND, HWND);
+};
+static struct LunaRenderApi s_render_api = {};
 
 bool g_win32_inited = false;
 unsigned g_win32_resize_width = 0;
@@ -32,9 +41,25 @@ ui_window_win32_t main_window;
 static HMONITOR win32_monitor_last;
 static HMONITOR win32_monitor_all[MAX_MONITORS];
 
-void win32_set_hwnd(HWND hwnd)
+void win32_set_render_window_api(void* data)
 {
-	main_window.hwnd = hwnd;
+	s_render_api = *(struct LunaRenderApi*)data;
+}
+
+BOOL CALLBACK FindToolBarProc(HWND _hWnd, LPARAM lParam)
+{
+    if (GetWindowLong(_hWnd, GWL_STYLE) & 0x200 /*RBS_VARHEIGHT*/) {
+        main_window.toolbarHwnd = _hWnd;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+void win32_set_hwnd(HWND mainHwnd, HWND renderHwnd)
+{
+	main_window.mainHwnd = mainHwnd;
+    main_window.renderHwnd = s_render_api.CreateRenderWindow ? s_render_api.CreateRenderWindow(mainHwnd) : renderHwnd;
+    EnumChildWindows(mainHwnd, FindToolBarProc, 0);
 }
 
 typedef struct win32_common_state
@@ -80,7 +105,7 @@ void win32_check_window(void* data,
 
 HWND win32_get_window(void)
 {
-    return main_window.hwnd;
+    return main_window.renderHwnd;
 }
 
 void win32_monitor_info(void* data, void* hm_data, unsigned* mon_id)
@@ -129,12 +154,17 @@ void win32_monitor_info(void* data, void* hm_data, unsigned* mon_id)
 void win32_monitor_from_window(void)
 {
     win32_monitor_last =
-        MonitorFromWindow(main_window.hwnd, MONITOR_DEFAULTTONEAREST);
+        MonitorFromWindow(main_window.mainHwnd, MONITOR_DEFAULTTONEAREST);
 }
 
 void win32_destroy_window(void)
 {
-    main_window.hwnd = NULL;
+    if (main_window.renderHwnd)
+    {
+        if (s_render_api.DestroyRenderWindow)
+            s_render_api.DestroyRenderWindow(main_window.mainHwnd, main_window.renderHwnd);
+	}
+    main_window.mainHwnd = NULL;
 }
 
 int win32_change_display_settings(const char* str, void* devmode_data,
@@ -267,13 +297,13 @@ void win32_set_style(MONITORINFOEX* current_mon, HMONITOR* hm_to_use,
         rect->right = *width;
         rect->bottom = *height;
 
-        AdjustWindowRect(rect, *style, FALSE);
+        // AdjustWindowRect(rect, *style, FALSE);
 
         if (video_window_save_positions)
         {
             /* Set position from config */
-            int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
-            int title_bar_height = GetSystemMetrics(SM_CYCAPTION);
+            int border_thickness = 0;// GetSystemMetrics(SM_CXSIZEFRAME);
+            int title_bar_height = 0;// GetSystemMetrics(SM_CYCAPTION);
 
             g_win32->pos_x = window_position_x;
             g_win32->pos_y = window_position_y;
@@ -319,19 +349,25 @@ void win32_set_window(unsigned* width, unsigned* height,
             rc_temp.right = (LONG)*height;
             rc_temp.bottom = 0x7FFF;
 
-            SendMessage(main_window.hwnd, WM_NCCALCSIZE, FALSE, (LPARAM)&rc_temp);
+            SendMessage(main_window.mainHwnd, WM_NCCALCSIZE, FALSE, (LPARAM)&rc_temp);
             RECT statusRect = { 0 };
             if (hStatusBar)
                 GetWindowRect(hStatusBar, &statusRect);
 
-            g_win32_resize_height = *height += rc_temp.top + rect->top;
-            int heightOffset = (statusRect.bottom - statusRect.top);
-            SetWindowPos(main_window.hwnd, NULL, 0, 0, *width, *height + heightOffset, SWP_NOMOVE);
+            RECT toolRect = {};
+			if (main_window.toolbarHwnd)
+                GetWindowRect(main_window.toolbarHwnd, &toolRect);
+
+            g_win32_resize_height = *height + rc_temp.top + rect->top;
+            int heightOffset = (statusRect.bottom - statusRect.top) + (toolRect.bottom - toolRect.top) + 50; // TODO magic number 50...
+            SetWindowPos(main_window.mainHwnd, NULL, 0, 0, *width, *height + heightOffset, SWP_NOMOVE);
+            if (main_window.mainHwnd != main_window.renderHwnd)
+                SetWindowPos(main_window.renderHwnd, NULL, 0, 0, *width, *height, SWP_NOMOVE);
         }
 
-        ShowWindow(main_window.hwnd, SW_RESTORE);
-        UpdateWindow(main_window.hwnd);
-        SetForegroundWindow(main_window.hwnd);
+        ShowWindow(main_window.mainHwnd, SW_RESTORE);
+        UpdateWindow(main_window.mainHwnd);
+        SetForegroundWindow(main_window.mainHwnd);
     }
 #endif
 }
@@ -415,7 +451,7 @@ float win32_get_refresh_rate(void* data)
 bool win32_has_focus(void* data)
 {
     if (g_win32_inited)
-        if (GetForegroundWindow() == main_window.hwnd)
+        if (GetForegroundWindow() == main_window.mainHwnd)
             return true;
 
     return false;
