@@ -304,6 +304,8 @@ EXPORT void CALL ViWidthChanged(void)
 {
 }
 
+extern "C" HWND win32_get_render_window(void);
+
 static void screen_toggle_fullscreen()
 {
     static HMENU old_menu;
@@ -341,7 +343,12 @@ static void screen_toggle_fullscreen()
         SetWindowLong(gfx.hWnd, GWL_STYLE, style);
 
         // resize window so it covers the entire virtual screen
-        SetWindowPos(gfx.hWnd, HWND_TOP, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+        SetWindowPos(gfx.hWnd, NULL, 0, 0, m_width, m_height, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW);
+		HWND render_window = win32_get_render_window();
+        if (gfx.hWnd != render_window)
+        {
+			SetWindowPos(render_window, HWND_TOP, 0, 0, m_width, m_height, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW);
+        }
     }
     else {
         // restore cursor

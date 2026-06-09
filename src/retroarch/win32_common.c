@@ -41,6 +41,11 @@ ui_window_win32_t main_window;
 static HMONITOR win32_monitor_last;
 static HMONITOR win32_monitor_all[MAX_MONITORS];
 
+HWND win32_get_render_window(void)
+{
+    return main_window.renderHwnd;
+}
+
 void win32_set_render_window_api(void* data)
 {
 	s_render_api = *(struct LunaRenderApi*)data;
@@ -358,17 +363,24 @@ void win32_set_window(unsigned* width, unsigned* height,
 			if (main_window.toolbarHwnd)
                 GetWindowRect(main_window.toolbarHwnd, &toolRect);
 
+            rc_temp.right = rc_temp.left + *width - 1;
+            rc_temp.bottom = rc_temp.top + *height - 1 + (statusRect.bottom - statusRect.top) + (toolRect.bottom - toolRect.top);
+            AdjustWindowRect(&rc_temp, GetWindowLong(main_window.mainHwnd, GWL_STYLE), GetMenu(main_window.mainHwnd) != NULL);
+
             g_win32_resize_height = *height + rc_temp.top + rect->top;
-            int heightOffset = (statusRect.bottom - statusRect.top) + (toolRect.bottom - toolRect.top) + 50; // TODO magic number 50...
-            SetWindowPos(main_window.mainHwnd, NULL, 0, 0, *width, *height + heightOffset, SWP_NOMOVE);
-            if (main_window.mainHwnd != main_window.renderHwnd)
-                SetWindowPos(main_window.renderHwnd, NULL, 0, 0, *width, *height, SWP_NOMOVE);
+            SetWindowPos(main_window.mainHwnd, NULL, 0, 0, rc_temp.right - rc_temp.left, rc_temp.bottom - rc_temp.top, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOMOVE);
         }
 
         ShowWindow(main_window.mainHwnd, SW_RESTORE);
         UpdateWindow(main_window.mainHwnd);
         SetForegroundWindow(main_window.mainHwnd);
     }
+
+    if (main_window.mainHwnd != main_window.renderHwnd)
+    {
+        SetWindowPos(main_window.renderHwnd, NULL, 0, 0, *width, *height, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOMOVE);
+    }
+
 #endif
 }
 
