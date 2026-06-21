@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\parallel-rdp\util\environment.cpp" />
+    <ClCompile Include="src\parallel-rdp\parallel-rdp\command_ring.cpp" />
+    <ClCompile Include="src\parallel-rdp\parallel-rdp\rdp_device.cpp" />
+    <ClCompile Include="src\parallel-rdp\parallel-rdp\rdp_dump_write.cpp" />
+    <ClCompile Include="src\parallel-rdp\parallel-rdp\rdp_renderer.cpp" />
+    <ClCompile Include="src\parallel-rdp\parallel-rdp\video_interface.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\buffer.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\buffer_pool.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\command_buffer.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\command_pool.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\context.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\cookie.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\descriptor_set.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\device.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\event_manager.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\fence.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\fence_manager.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\image.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\indirect_layout.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\memory_allocator.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\pipeline_event.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\query_pool.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\render_pass.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\sampler.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\semaphore.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\semaphore_manager.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\shader.cpp" />
+    <ClCompile Include="src\parallel-rdp\vulkan\texture\texture_format.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\logging.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\thread_id.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\aligned_alloc.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\arena_allocator.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\timer.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\timeline_trace_file.cpp" />
+    <ClCompile Include="src\parallel-rdp\util\thread_name.cpp" />
+    <ClCompile Include="src\parallel-rdp\volk\volk.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F7648588-8AEF-3EF2-AB2F-241A9DBA019F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

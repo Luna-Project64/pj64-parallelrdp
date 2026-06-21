@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\parallel_imp.cpp" />
+    <ClCompile Include="src\config_gui.c" />
+    <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\gfx_1.3.cpp" />
+    <ClCompile Include="src\ini.c" />
+    <ClCompile Include="src\queue_executor.cpp" />
+    <ClCompile Include="src\retroarch\vulkan_common.c" />
+    <ClCompile Include="src\retroarch\w_vk_ctx.c" />
+    <ClCompile Include="src\retroarch\retro_vulkan.c" />
+    <ClCompile Include="src\retroarch\video_driver.c" />
+    <ClCompile Include="src\retroarch\driver.c" />
+    <ClCompile Include="src\retroarch\retroarch.c" />
+    <ClCompile Include="src\retroarch\win32_common.c" />
+    <ClCompile Include="src\retroarch\gfx_display_vulkan.c" />
+    <ClCompile Include="src\retroarch\gfx_display.c" />
+    <ClCompile Include="src\retroarch\dispserv_win32.c" />
+    <ClCompile Include="src\retroarch\rthreads.c" />
+    <ClCompile Include="src\retroarch\scaler.c" />
+    <ClCompile Include="src\retroarch\pixconv.c" />
+    <ClCompile Include="src\retroarch\scaler_filter.c" />
+    <ClCompile Include="src\retroarch\scaler_int.c" />
+    <ClCompile Include="src\retroarch\shader_vulkan.cpp" />
+    <ClCompile Include="src\retroarch\compat_strl.c" />
+    <ClCompile Include="src\retroarch\string_list.c" />
+    <ClCompile Include="src\retroarch\slang_reflection.cpp" />
+    <ClCompile Include="src\spirv-cross\spirv_cfg.cpp" />
+    <ClCompile Include="src\spirv-cross\spirv_cross.cpp" />
+    <ClCompile Include="src\spirv-cross\spirv_cross_parsed_ir.cpp" />
+    <ClCompile Include="src\spirv-cross\spirv_parser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\config_gui_resources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F7648588-8AEF-3EF2-AB2F-241A9DBA019F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

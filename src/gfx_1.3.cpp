@@ -135,13 +135,9 @@ EXPORT void CALL CaptureScreen(char* directory)
 
 EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
 {
-    // Copy substring of git hash into buffer.
-    char hash[8] = {0};
-    strncpy(hash, GIT_HEAD_SHA1, 7);
-
     PluginInfo->Version = 0x0103;
     PluginInfo->Type  = PLUGIN_TYPE_GFX;
-    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.2.2", hash);
+    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.3.1");
 
     PluginInfo->NormalMemory = TRUE;
     PluginInfo->MemoryBswaped = TRUE;
