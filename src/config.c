@@ -23,7 +23,9 @@ struct settingkey_t settings[NUM_CONFIGVARS] =
     {"KEY_VSYNC", 1},
     {"KEY_DOWNSCALE", 1},
     {"KEY_WIDESCREEN", 0},
-    {"KEY_SYNCHRONOUS", 1}
+    {"KEY_SYNCHRONOUS", 1},
+    {"KEY_INSTANT_INPUT", 0},
+    {"KEY_REMOVE_BLACK_BARS", 0}
 };
 
 void config_init()

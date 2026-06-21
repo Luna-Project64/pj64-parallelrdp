@@ -204,6 +204,9 @@ static void xconfig_init()
     RDP::downscaling_steps = settings[KEY_DOWNSCALING].val;
     RDP::synchronous = settings[KEY_SYNCHRONOUS].val;
 
+    RDP::instant_input = settings[KEY_INSTANT_INPUT].val;
+    RDP::remove_black_bars = settings[KEY_REMOVE_BLACK_BARS].val;
+
     if (!m_fullscreen)
     {
         m_width = settings[KEY_SCREEN_WIDTH].val;
@@ -511,10 +514,42 @@ extern "C" EXPORT void CALL LunaRegisterRenderWindowApi(void* data)
     win32_set_render_window_api(data);
 }
 
-static void tryDisableHLEGraphics()
+struct MiniConfig
 {
-    if (Zilmar::Set_GraphicsHle)
-    {
-        Zilmar::g_PluginSettings.SetSetting(Zilmar::g_PluginSettings.handle, Zilmar::Set_GraphicsHle, 0);
-    }
+    bool fb;
+    bool fbDepthCompare;
+    bool fbDefault;
+    bool emuDefault;
+
+    bool reduceInputDelay;
+    bool removeBlackBars;
+    bool enableZeldaHacks;
+};
+
+extern "C" EXPORT bool CALL LunaSaveConfig(const char* name, void* data)
+{
+    config_load();
+    MiniConfig* miniConfig = (MiniConfig*)data;
+
+    settings[KEY_REMOVE_BLACK_BARS].val = miniConfig->removeBlackBars ? 1 : 0;
+    settings[KEY_INSTANT_INPUT].val = miniConfig->reduceInputDelay ? 1 : 0;
+
+    config_save();
+
+    return true;
+}
+
+extern "C" EXPORT bool CALL LunaLoadConfig(const char* name, void* data)
+{
+    config_load();
+    MiniConfig* miniConfig = (MiniConfig*)data;
+    miniConfig->fb = true;
+    miniConfig->fbDepthCompare = true;
+    miniConfig->fbDefault = true;
+    miniConfig->emuDefault = true; // i think?
+    miniConfig->removeBlackBars = settings[KEY_REMOVE_BLACK_BARS].val;
+    miniConfig->reduceInputDelay = settings[KEY_INSTANT_INPUT].val;
+    miniConfig->enableZeldaHacks = false;
+
+    return true;
 }

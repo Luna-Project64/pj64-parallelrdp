@@ -325,6 +325,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\config_gui_resources.h" />
     <ClInclude Include="src\screenshot\screenshot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

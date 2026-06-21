@@ -17,6 +17,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -49,14 +50,14 @@ END
 // Dialog
 //
 
-FormKickstart DIALOGEX 0, 0, 227, 200
+FormKickstart DIALOGEX 0, 0, 227, 212
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Run"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",ButtonRun,66,180,36,18
-    PUSHBUTTON      "Cancel",ButtonQuit,126,180,30,18
+    DEFPUSHBUTTON   "OK",ButtonRun,66,190,36,18
+    PUSHBUTTON      "Cancel",ButtonQuit,126,190,30,18
     COMBOBOX        ComboResolution,17,22,103,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Fullscreen",CheckFullscreen,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,150,48,10,WS_EX_TRANSPARENT
     CONTROL         "Vertical sync",CheckVerticalSync,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,150,54,10,WS_EX_TRANSPARENT
@@ -78,6 +79,8 @@ BEGIN
     COMBOBOX        ComboUpscaler2,18,84,71,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Downscaling of upscaled buffer",Upscaling3,18,72,102,8
     CONTROL         "Force widescreen",CheckWidescreen,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,162,72,10,WS_EX_TRANSPARENT
+    CONTROL         "Instant Input",CheckInstantInput,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,174,100,10,WS_EX_TRANSPARENT
+    CONTROL         "Remove Black Bars",CheckBlackBars,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,174,88,10,WS_EX_TRANSPARENT
 END
 
 
@@ -95,7 +98,7 @@ BEGIN
         LEFTMARGIN, 6
         RIGHTMARGIN, 225
         TOPMARGIN, 7
-        BOTTOMMARGIN, 146
+        BOTTOMMARGIN, 158
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -112,25 +115,6 @@ BEGIN
 END
 
 #endif    // English (United States) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Norwegian Bokmal (Norway) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NOR)
-LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_BOKMAL
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-//KickstartIcon           ICON                    "Kickstart.ico"
-
-#endif    // Norwegian Bokmal (Norway) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -171,6 +171,8 @@ BOOL CALLBACK DlgFunc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	SendDlgItemMessage(hWnd, CheckVerticalSync, BM_SETCHECK, settings[KEY_VSYNC].val, 0);
 	SendDlgItemMessage(hWnd, CheckSynchronous, BM_SETCHECK, settings[KEY_SYNCHRONOUS].val, 0);
 	SendDlgItemMessage(hWnd, CheckWidescreen, BM_SETCHECK, settings[KEY_WIDESCREEN].val, 0);
+    SendDlgItemMessage(hWnd, CheckInstantInput, BM_SETCHECK, settings[KEY_INSTANT_INPUT].val, 0);
+	SendDlgItemMessage(hWnd, CheckBlackBars, BM_SETCHECK, settings[KEY_REMOVE_BLACK_BARS].val, 0);
 
 	break;
 
@@ -202,6 +204,8 @@ BOOL CALLBACK DlgFunc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			settings[KEY_SYNCHRONOUS].val = SendDlgItemMessage(hWnd, CheckSynchronous, BM_GETCHECK, 0, 0);
 			settings[KEY_DOWNSCALING].val = SendDlgItemMessage(hWnd, ComboUpscaler2, CB_GETCURSEL, 0, 0);
 			settings[KEY_WIDESCREEN].val = SendDlgItemMessage(hWnd, CheckWidescreen, BM_GETCHECK, 0, 0);
+			settings[KEY_INSTANT_INPUT].val = SendDlgItemMessage(hWnd, CheckInstantInput, BM_GETCHECK, 0, 0);
+            settings[KEY_REMOVE_BLACK_BARS].val = SendDlgItemMessage(hWnd, CheckBlackBars, BM_GETCHECK, 0, 0);
 			config_save();
 			EndDialog(hWnd, TRUE);
 		} break;

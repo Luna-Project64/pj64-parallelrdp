@@ -21,7 +21,9 @@
 #define KEY_DOWNSCALING 17
 #define KEY_WIDESCREEN 18
 #define KEY_SYNCHRONOUS 19
-#define NUM_CONFIGVARS 20
+#define KEY_INSTANT_INPUT 20
+#define KEY_REMOVE_BLACK_BARS 21
+#define NUM_CONFIGVARS 22
 
 struct settingkey_t
 {

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Kickstart.rc
+// Used by config_gui_resources.rc
 //
 #define FormKickstart                   101
 #define KickstartIcon                   108
@@ -38,6 +38,9 @@
 #define CheckVerticalSync2              1024
 #define CheckWidescreen                 1024
 #define CheckSynchronous                1025
+#define CheckInstantInput               1026
+#define CheckInstantInput2              1027
+#define CheckBlackBars                  1027
 
 // Next default values for new objects
 // 

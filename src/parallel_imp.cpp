@@ -41,6 +41,9 @@ bool native_tex_rect = true;
 bool synchronous = true, divot_filter = true, gamma_dither = true;
 bool vi_aa = true, vi_scale = true, dither_filter = true;
 bool interlacing = true, super_sampled_read_back = false, super_sampled_dither = true;
+bool instant_input = false, remove_black_bars = false;
+
+static uint32_t sCachedColorAddress = 0;
 
 static const unsigned cmd_len_lut[64] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 4, 6, 12, 14, 12, 14, 20, 22,
@@ -119,6 +122,10 @@ void process_commands()
 			*gfx.MI_INTR_REG |= DP_INTERRUPT;
 			gfx.CheckInterrupts();
 		}
+		if (RDP::Op(command) == RDP::Op::SetColorImage)
+		{
+			sCachedColorAddress = cmd_data[2 * cmd_cur + 1] & 0xffffff;
+        }
 
 		cmd_cur += cmd_length;
 	}
@@ -346,7 +353,14 @@ void complete_frame(const VIRegsSample& regs)
 	timeline_value = frontend->signal_timeline();
 
 	frontend->set_vi_register(VIRegister::Control, regs.VI_STATUS);
-	frontend->set_vi_register(VIRegister::Origin, regs.VI_ORIGIN);
+	if (RDP::instant_input)
+	{
+		frontend->set_vi_register(VIRegister::Origin, sCachedColorAddress);
+	}
+	else
+	{
+		frontend->set_vi_register(VIRegister::Origin, regs.VI_ORIGIN);
+	}
 	frontend->set_vi_register(VIRegister::Width, regs.VI_WIDTH);
 	frontend->set_vi_register(VIRegister::Intr, regs.VI_INTR);
 	frontend->set_vi_register(VIRegister::VCurrentLine, regs.VI_V_CURRENT_LINE);

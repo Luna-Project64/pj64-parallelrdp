@@ -46,5 +46,6 @@
     <ClInclude Include="src\screenshot\screenshot.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\config_gui_resources.h" />
   </ItemGroup>
 </Project>
