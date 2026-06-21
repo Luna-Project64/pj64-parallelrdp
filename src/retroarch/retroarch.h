@@ -226,6 +226,8 @@ extern "C" {
     void retro_deinit(void);
     void retro_reinit(void);
 
+    void retro_video_capture_screen(const char* dir, const char* romname);
+
     void retroarch_fail(int num, const char* err, ...);
 
     settings_t* config_get_ptr(void);

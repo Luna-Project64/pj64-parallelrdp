@@ -30,6 +30,9 @@
     <ClCompile Include="src\spirv-cross\spirv_cross.cpp" />
     <ClCompile Include="src\spirv-cross\spirv_cross_parsed_ir.cpp" />
     <ClCompile Include="src\spirv-cross\spirv_parser.cpp" />
+    <ClCompile Include="src\screenshot\screenshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\config_gui_resources.rc" />
@@ -38,5 +41,10 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{F7648588-8AEF-3EF2-AB2F-241A9DBA019F}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\screenshot\screenshot.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

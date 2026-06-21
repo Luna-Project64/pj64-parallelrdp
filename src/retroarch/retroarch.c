@@ -20,6 +20,7 @@
  */
 
 #include "retroarch.h"
+#include "../screenshot/screenshot.h"
 
 #include "../config.h"
 #include "driver.h"
@@ -205,4 +206,22 @@ bool retro_set_hw_render_context_negotiation_interface(void* data)
     video_st->hw_render_context_negotiation = iface;
 
     return true;
+}
+
+void retro_video_capture_screen(const char* dir, const char* romname)
+{
+    struct video_viewport vp;
+    video_driver_state_t* video_st = video_state_get_ptr();
+    video_driver_t* video = video_st->current_video;
+
+    video->viewport_info(video_st->data, &vp);
+    if (!vp.width || !vp.height)
+        return;
+
+    void* buffer = malloc(vp.width * vp.height * 3);
+    if (video->read_viewport(video_st->data, buffer, false /*not idle*/))
+    {
+        SaveScreenshot(dir, romname, vp.width, vp.height, buffer);
+    }
+    free(buffer);
 }
