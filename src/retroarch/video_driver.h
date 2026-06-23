@@ -715,6 +715,10 @@ void video_driver_frame(const void* data, unsigned width,
 void video_viewport_get_scaled_integer(struct video_viewport* vp,
     unsigned width, unsigned height,
     float aspect_ratio, bool keep_aspect);
+    
+bool video_driver_get_viewport_info(struct video_viewport* viewport);
+
+bool video_driver_read_viewport(uint8_t *buffer, bool is_idle);
 
 extern video_driver_t video_vulkan;
 extern const gfx_ctx_driver_t gfx_ctx_w_vk;

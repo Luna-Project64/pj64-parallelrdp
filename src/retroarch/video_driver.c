@@ -91,6 +91,16 @@ bool video_driver_get_viewport_info(struct video_viewport* viewport)
     return true;
 }
 
+bool video_driver_read_viewport(uint8_t *buffer, bool is_idle)
+{
+   video_driver_state_t *video_st          = &video_driver_st;
+   if (     video_st->current_video->read_viewport
+         && video_st->current_video->read_viewport(
+            video_st->data, buffer, is_idle))
+      return true;
+   return false;
+}
+
 static bool get_metrics_null(void* data, enum display_metric_types type,
     float* value) {
     return false;

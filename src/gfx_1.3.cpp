@@ -44,11 +44,10 @@
 
 static bool m_romopened = false;
 static bool warn_hle = false;
-bool gCaptureScreen = false;
-std::string gCaptureDirectory;
 GFX_INFO gfx;
 uint32_t rdram_size;
 static QueueExecutor sExecutor;
+static QueueExecutor sScreenshotter;
 extern "C"
 {
     HWND hStatusBar;
@@ -132,8 +131,18 @@ void plugin_close(void)
 
 EXPORT void CALL CaptureScreen(char* directory)
 {
-    gCaptureDirectory = directory;
-    gCaptureScreen = true;
+    std::string directory_str(directory);
+    sScreenshotter.async([directory_str]() {
+        char romname[21];
+        for (int i = 0; i < 20; ++i)
+            romname[i] = gfx.HEADER[(32 + i) ^ 3];
+        romname[20] = 0;
+
+        while (romname[strlen(romname) - 1] == ' ')
+            romname[strlen(romname) - 1] = 0;
+
+        retro_video_capture_screen(directory_str.c_str(), romname);
+    });
 }
 
 EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
@@ -249,6 +258,8 @@ EXPORT void CALL RomOpen(void)
         xconfig_init();
         rom_open_init();
     });
+
+    sScreenshotter.start(false /*same thread exec*/);
 }
 
 EXPORT void CALL DrawScreen(void)
@@ -263,6 +274,8 @@ EXPORT void CALL RomClosed(void)
 {
     sExecutor.async(retro_deinit);
     sExecutor.stop();
+
+    sScreenshotter.stop();
 }
 
 EXPORT void CALL ShowCFB(void)
@@ -289,20 +302,6 @@ EXPORT void CALL ShowCFB(void)
         RDP::complete_frame(regs);
         RDP::profile_refresh_begin();
         retro_video_refresh(RETRO_HW_FRAME_BUFFER_VALID, RDP::width, RDP::height, 0);
-        if (gCaptureScreen)
-        {
-            gCaptureScreen = false;
-            char romname[21];
-            for (int i = 0; i < 20; ++i)
-                romname[i] = gfx.HEADER[(32 + i) ^ 3];
-            romname[20] = 0;
-
-            while (romname[strlen(romname) - 1] == ' ')
-                romname[strlen(romname) - 1] = 0;
-
-            retro_video_capture_screen(gCaptureDirectory.c_str(), romname);
-        }
-
         RDP::profile_refresh_end();
     });
 }

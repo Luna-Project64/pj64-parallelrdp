@@ -211,15 +211,12 @@ bool retro_set_hw_render_context_negotiation_interface(void* data)
 void retro_video_capture_screen(const char* dir, const char* romname)
 {
     struct video_viewport vp;
-    video_driver_state_t* video_st = video_state_get_ptr();
-    video_driver_t* video = video_st->current_video;
-
-    video->viewport_info(video_st->data, &vp);
+    video_driver_get_viewport_info(&vp);
     if (!vp.width || !vp.height)
         return;
 
     void* buffer = malloc(vp.width * vp.height * 3);
-    if (video->read_viewport(video_st->data, buffer, false /*not idle*/))
+    if (video_driver_read_viewport(buffer, false /*is_idle*/))
     {
         SaveScreenshot(dir, romname, vp.width, vp.height, buffer);
     }
