@@ -105,8 +105,8 @@ bool retro_init(bool fs, unsigned width, unsigned height, unsigned av_width, uns
     bool           init_failed = false;
     video_driver_state_t* video_st = video_state_get_ptr();
     video_st->active = true;
-    video_st->av_info.geometry.base_height = av_height;
-    video_st->av_info.geometry.base_width = av_width;
+    video_st->av_info.geometry.max_height = video_st->av_info.geometry.base_height = av_height;
+    video_st->av_info.geometry.max_width = video_st->av_info.geometry.base_width = av_width;
 
     if (!video_driver_find_driver(rsettings,
         "video driver", verbosity_enabled))

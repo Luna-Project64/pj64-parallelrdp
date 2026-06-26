@@ -149,7 +149,7 @@ EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
 {
     PluginInfo->Version = 0x0103;
     PluginInfo->Type  = PLUGIN_TYPE_GFX;
-    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.3.1");
+    snprintf(PluginInfo->Name, sizeof(PluginInfo->Name), "LINK's ParaLLEl-RDP v1.3.2");
 
     PluginInfo->NormalMemory = TRUE;
     PluginInfo->MemoryBswaped = TRUE;
@@ -546,8 +546,8 @@ extern "C" EXPORT bool CALL LunaLoadConfig(const char* name, void* data)
     miniConfig->fbDepthCompare = true;
     miniConfig->fbDefault = true;
     miniConfig->emuDefault = true; // i think?
-    miniConfig->removeBlackBars = settings[KEY_REMOVE_BLACK_BARS].val;
-    miniConfig->reduceInputDelay = settings[KEY_INSTANT_INPUT].val;
+    miniConfig->removeBlackBars = !!settings[KEY_REMOVE_BLACK_BARS].val;
+    miniConfig->reduceInputDelay = !!settings[KEY_INSTANT_INPUT].val;
     miniConfig->enableZeldaHacks = false;
 
     return true;

@@ -379,6 +379,7 @@ void win32_set_window(unsigned* width, unsigned* height,
     if (main_window.mainHwnd != main_window.renderHwnd)
     {
         SetWindowPos(main_window.renderHwnd, NULL, 0, 0, *width, *height, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOMOVE);
+        g_win32_resize_height = *height;
     }
 
 #endif
