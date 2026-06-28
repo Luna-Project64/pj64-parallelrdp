@@ -47,7 +47,6 @@ static bool warn_hle = false;
 GFX_INFO gfx;
 uint32_t rdram_size;
 static QueueExecutor sExecutor;
-static QueueExecutor sScreenshotter;
 extern "C"
 {
     HWND hStatusBar;
@@ -132,7 +131,7 @@ void plugin_close(void)
 EXPORT void CALL CaptureScreen(char* directory)
 {
     std::string directory_str(directory);
-    sScreenshotter.async([directory_str]() {
+    sExecutor.async([directory_str]() {
         char romname[21];
         for (int i = 0; i < 20; ++i)
             romname[i] = gfx.HEADER[(32 + i) ^ 3];
@@ -258,8 +257,6 @@ EXPORT void CALL RomOpen(void)
         xconfig_init();
         rom_open_init();
     });
-
-    sScreenshotter.start(false /*same thread exec*/);
 }
 
 EXPORT void CALL DrawScreen(void)
@@ -274,8 +271,6 @@ EXPORT void CALL RomClosed(void)
 {
     sExecutor.async(retro_deinit);
     sExecutor.stop();
-
-    sScreenshotter.stop();
 }
 
 EXPORT void CALL ShowCFB(void)

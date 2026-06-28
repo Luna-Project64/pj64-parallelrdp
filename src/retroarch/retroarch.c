@@ -211,7 +211,8 @@ bool retro_set_hw_render_context_negotiation_interface(void* data)
 void retro_video_capture_screen(const char* dir, const char* romname)
 {
     struct video_viewport vp;
-    video_driver_get_viewport_info(&vp);
+    if (!video_driver_get_viewport_info(&vp))
+        return;
     if (!vp.width || !vp.height)
         return;
 
